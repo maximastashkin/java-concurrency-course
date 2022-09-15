@@ -1,36 +1,36 @@
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 
 public class UpperLettersStringCounterTest {
     private final UpperLettersStringCounter testedCounter = new UpperLettersStringCounter();
 
-    @Test
+    @RepeatedTest(50)
     public void zeroUpperTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters("abcdef"), 0);
+        Assertions.assertEquals(testedCounter.countUpperLetters("abcdef"), 0);
     }
 
-    @Test
+    @RepeatedTest(50)
     public void oneUpperTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters("Abcdef"), 1);
+        Assertions.assertEquals(testedCounter.countUpperLetters("Abcdef"), 1);
     }
 
-    @Test
+    @RepeatedTest(50)
     public void twoUpperTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters("AbcdeF"), 2);
+        Assertions.assertEquals(testedCounter.countUpperLetters("AbcdeF"), 2);
     }
 
-    @Test
+    @RepeatedTest(50)
     public void emptyFirstTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters("   "), 0);
+        Assertions.assertEquals(testedCounter.countUpperLetters("   "), 0);
     }
 
-    @Test
+    @RepeatedTest(50)
     public void emptySecondTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters(""), 0);
+        Assertions.assertEquals(testedCounter.countUpperLetters(""), 0);
     }
 
-    @Test
+    @RepeatedTest(50)
     public void nullTest() {
-        Assert.assertEquals(testedCounter.countUpperLetters(null), 0);
+        Assertions.assertEquals(testedCounter.countUpperLetters(null), 0);
     }
 }

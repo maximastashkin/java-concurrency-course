@@ -1,9 +1,9 @@
 public class UpperLettersStringCounter {
     public long countUpperLetters(String consumer) {
-        if (consumer == null) {
+        if (consumer == null || (consumer = consumer.trim()).isEmpty()) {
             return 0;
         }
-        return countUpperLetters(consumer.trim().toCharArray());
+        return countUpperLetters(consumer.toCharArray());
     }
 
     private long countUpperLetters(char[] consumer) {
