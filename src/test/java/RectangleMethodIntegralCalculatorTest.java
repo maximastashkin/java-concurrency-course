@@ -12,14 +12,14 @@ public class RectangleMethodIntegralCalculatorTest {
     @Test
     public void testIllegalParameters() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-                calculator.calculate(1, 0, x -> 1.0));
+                calculator.calculate(x -> 1.0, 1, 0));
     }
 
     @Test
     public void testZeroSquare() {
         Assertions.assertEquals(
                 0,
-                calculator.calculate(1, 1, x -> 1.0)
+                calculator.calculate(x -> 1.0, 1, 1)
         );
     }
 
@@ -27,7 +27,7 @@ public class RectangleMethodIntegralCalculatorTest {
     public void testRoundFunction() {
         Assertions.assertEquals(
                 0.785398,
-                calculator.calculate(0, 1, x -> sqrt(1 - x * x)),
+                calculator.calculate(x -> sqrt(1 - x * x), 0, 1),
                 testingEpsilon
         );
     }
@@ -36,7 +36,7 @@ public class RectangleMethodIntegralCalculatorTest {
     public void testSinFunction() {
         Assertions.assertEquals(
                 0,
-                calculator.calculate(-10, 10, Math::sin),
+                calculator.calculate(Math::sin, -10, 10),
                 testingEpsilon
         );
     }
@@ -45,7 +45,7 @@ public class RectangleMethodIntegralCalculatorTest {
     public void testSqrtFunction() {
         Assertions.assertEquals(
                 0.666666,
-                calculator.calculate(0, 1, Math::sqrt),
+                calculator.calculate(Math::sqrt, 0, 1),
                 testingEpsilon
         );
     }
@@ -54,7 +54,7 @@ public class RectangleMethodIntegralCalculatorTest {
     public void calculationPiTest() {
         Assertions.assertEquals(
                 Math.PI,
-                calculator.calculate(0, 1,  x -> sqrt(1 - x * x)) * 4,
+                calculator.calculate(x -> sqrt(1 - x * x), 0, 1) * 4,
                 testingEpsilon * 10
         );
     }

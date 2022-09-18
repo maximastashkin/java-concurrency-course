@@ -9,43 +9,39 @@ public class RectangleMethodIntegralCalculator {
         this.epsilon = epsilon;
     }
 
-    public double calculate(double lowerBound, double upperBound, Function<Double, Double> function) {
+    public double calculate(Function<Double, Double> function, double lowerBound, double upperBound) {
         if (upperBound < lowerBound) {
             throw new IllegalArgumentException("Upper bound must be more than lower");
         }
         if (lowerBound == upperBound) {
             return 0;
         }
-        return calculateRectangleMethodeIntegral(lowerBound, upperBound, function,
-                getSegmentsNumberForBounds(lowerBound, upperBound));
+        long integrationSegmentsNumber = getIntegrationSegmentNumber(lowerBound, upperBound);
+        return calculateRectangleMethodeIntegral(function, lowerBound, upperBound,
+                getIntegrationDelta(lowerBound, upperBound, integrationSegmentsNumber));
     }
 
-    private int getSegmentsNumberForBounds(
-            double lowerBound,
-            double upperBound
-    ) {
-        int segmentNumber = 1;
-        while ((upperBound - lowerBound) / segmentNumber >= epsilon) {
-            segmentNumber++;
-        }
-        return segmentNumber;
+    private long getIntegrationSegmentNumber(double lowerBound, double upperBound) {
+        return (long) ((upperBound - lowerBound) / epsilon);
+    }
+
+    private double getIntegrationDelta(double lowerBound, double upperBound, long integrationSegmentsNumber) {
+        return (upperBound - lowerBound) / integrationSegmentsNumber;
     }
 
     private double calculateRectangleMethodeIntegral(
+            Function<Double, Double> function,
             double lowerBound,
             double upperBound,
-            Function<Double, Double> function,
-            int segmentsNumber
+            double integrationDelta
     ) {
         double square = 0;
-        double h = (upperBound - lowerBound) / segmentsNumber;
         double left = lowerBound;
 
-        for (int i = 0; i < segmentsNumber; i++) {
-            square += h * function.apply(left);
-            left += h;
+        while (left + integrationDelta / 3 <= upperBound) {
+            square += integrationDelta * function.apply(left);
+            left += integrationDelta;
         }
         return square;
     }
-
 }
