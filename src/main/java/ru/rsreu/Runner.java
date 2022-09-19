@@ -4,7 +4,7 @@ import ru.rsreu.calculation.RectangleMethodIntegralCalculator;
 
 public class Runner {
     public static void main(String[] args) throws InterruptedException {
-        RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(1E-9);
+        RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(3E-10);
         IntegrationCalculationTask task = new IntegrationCalculationTask(
                 calculator, (x) -> Math.sqrt(1 - x * x), 0, 1);
         Thread calculationThread = new Thread(task);

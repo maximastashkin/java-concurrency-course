@@ -11,8 +11,8 @@ public class RectangleMethodIntegralCalculator {
         this.epsilon = epsilon;
     }
 
-    private static int calculateProgressPercent(long integrationSegmentsNumber, int iteration) {
-        return (int) ((iteration / (double) integrationSegmentsNumber) * 100);
+    private static int calculateProgressPercent(long integrationSegmentsNumber, long iteration) {
+        return (int) (((double) iteration / integrationSegmentsNumber) * 100);
     }
 
     public double calculate(Function<Double, Double> function, double lowerBound, double upperBound) {
@@ -36,7 +36,7 @@ public class RectangleMethodIntegralCalculator {
 
         double square = 0;
         double left = lowerBound;
-        int iteration = 0;
+        long iteration = 0;
         while (left + integrationDelta / 3 <= upperBound) {
             square += integrationDelta * function.apply(left);
             left += integrationDelta;
