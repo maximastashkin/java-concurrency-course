@@ -4,7 +4,7 @@ import ru.rsreu.calculation.RectangleMethodIntegralCalculator;
 
 public class Runner {
     public static void main(String[] args) {
-        RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(1E-9);
+        RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(3E-10);
         long timeBefore = System.currentTimeMillis();
         double square = calculator.calculate(x -> Math.sqrt(1 - x * x), 0, 1);
         long timeAfter = System.currentTimeMillis();
