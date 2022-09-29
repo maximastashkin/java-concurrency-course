@@ -16,7 +16,7 @@ public class RectangleMethodIntegralCalculatorTest {
     }
 
     @Test
-    public void testZeroSquare() {
+    public void testZeroSquare() throws InterruptedException {
         Assertions.assertEquals(
                 0,
                 calculator.calculate(x -> 1.0, 1, 1)
@@ -24,7 +24,7 @@ public class RectangleMethodIntegralCalculatorTest {
     }
 
     @Test
-    public void testRoundFunction() {
+    public void testRoundFunction() throws InterruptedException {
         Assertions.assertEquals(
                 0.785398,
                 calculator.calculate(x -> sqrt(1 - x * x), 0, 1),
@@ -33,7 +33,7 @@ public class RectangleMethodIntegralCalculatorTest {
     }
 
     @Test
-    public void testSinFunction() {
+    public void testSinFunction() throws InterruptedException {
         Assertions.assertEquals(
                 0,
                 calculator.calculate(Math::sin, -10, 10),
@@ -42,7 +42,7 @@ public class RectangleMethodIntegralCalculatorTest {
     }
 
     @Test
-    public void testSqrtFunction() {
+    public void testSqrtFunction() throws InterruptedException {
         Assertions.assertEquals(
                 0.666666,
                 calculator.calculate(Math::sqrt, 0, 1),
@@ -51,7 +51,7 @@ public class RectangleMethodIntegralCalculatorTest {
     }
 
     @Test
-    public void calculationPiTest() {
+    public void calculationPiTest() throws InterruptedException {
         Assertions.assertEquals(
                 Math.PI,
                 calculator.calculate(x -> sqrt(1 - x * x), 0, 1) * 4,

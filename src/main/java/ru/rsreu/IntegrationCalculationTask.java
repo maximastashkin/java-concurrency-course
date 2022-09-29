@@ -25,7 +25,12 @@ public class IntegrationCalculationTask implements Runnable {
 
     @Override
     public void run() {
-        calculationResult = calculator.calculate(function, lowerBound, upperBound);
+        try {
+            calculationResult = calculator.calculate(function, lowerBound, upperBound);
+        } catch (InterruptedException exception) {
+            System.out.printf("Thread [%s] was interrupted%n", Thread.currentThread().getName());
+        }
+
     }
 
     public double getCalculationResult() {
