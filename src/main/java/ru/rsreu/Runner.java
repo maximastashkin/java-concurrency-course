@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.function.Function;
 
 public class Runner {
-    private static final ExecutableThreadsHolder threadsHolder = ExecutableThreadsHolder.create();
+    private static final ExecutableThreadsProcessor threadsHolder = ExecutableThreadsProcessor.create();
     private static int currentTaskId = 0;
 
     public static void main(String[] args) {

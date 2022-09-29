@@ -5,16 +5,16 @@ import ru.rsreu.calculation.RectangleMethodIntegralCalculator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExecutableThreadsHolder {
+public class ExecutableThreadsProcessor {
     private static final int LOGS_QUANTITY = 5;
     private final Map<Integer, Thread> executableThreads = new HashMap<>();
 
-    private ExecutableThreadsHolder() {
+    private ExecutableThreadsProcessor() {
 
     }
 
-    public static ExecutableThreadsHolder create() {
-        return new ExecutableThreadsHolder();
+    public static ExecutableThreadsProcessor create() {
+        return new ExecutableThreadsProcessor();
     }
 
 
