@@ -37,6 +37,10 @@ public class ExecutableThreadsProcessor {
     public Thread getExecutableThreadOrThrow(int taskId) {
         Thread result = executableThreads.get(taskId);
         if (result != null) {
+            if (!result.isAlive()) {
+                throw new RuntimeException(
+                        String.format("Thread [%s] is already dead%n", result.getName()));
+            }
             return result;
         } else {
             throw new RuntimeException(String.format("Thread with given task(id = %d) didn't find", taskId));
