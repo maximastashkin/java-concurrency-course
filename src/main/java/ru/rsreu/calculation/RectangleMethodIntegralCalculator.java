@@ -17,10 +17,6 @@ public class RectangleMethodIntegralCalculator {
         this.logsCount = logsCount;
     }
 
-    private static int calculateProgressPercent(long integrationSegmentsNumber, long iteration) {
-        return (int) (((double) iteration / integrationSegmentsNumber) * 100);
-    }
-
     public double calculate(Function<Double, Double> function, double lowerBound, double upperBound)
             throws InterruptedException {
         if (upperBound < lowerBound) {
@@ -48,6 +44,7 @@ public class RectangleMethodIntegralCalculator {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
+            System.out.println(integrationDelta * function.apply(left));
             square += integrationDelta * function.apply(left);
             left += integrationDelta;
         }

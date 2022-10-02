@@ -45,7 +45,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.rsreu.Runner</mainClass>
+                            <mainClass>ru.rsreu.single_thread.Runner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

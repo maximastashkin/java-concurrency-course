@@ -1,4 +1,4 @@
-package ru.rsreu;
+package ru.rsreu.single_thread;
 
 import ru.rsreu.input.InputEntity;
 import ru.rsreu.input.InputState;
