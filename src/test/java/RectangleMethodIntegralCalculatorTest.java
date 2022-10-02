@@ -7,7 +7,7 @@ import static java.lang.Math.sqrt;
 public class RectangleMethodIntegralCalculatorTest {
     private final double testingEpsilon = 1E-6;
 
-    private final RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(testingEpsilon);
+    private final RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(testingEpsilon, calculationProgress);
 
     @Test
     public void testIllegalParameters() {

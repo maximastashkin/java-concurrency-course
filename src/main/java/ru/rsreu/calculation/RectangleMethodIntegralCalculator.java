@@ -1,20 +1,16 @@
 package ru.rsreu.calculation;
 
-import ru.rsreu.logger.ProgressLogger;
+import ru.rsreu.logger.CalculationProgress;
 
 import java.util.function.Function;
 
 public class RectangleMethodIntegralCalculator {
+    private final CalculationProgress progress;
     private final double epsilon;
-    private final int logsCount;
 
-    public RectangleMethodIntegralCalculator(double epsilon) {
-        this(epsilon, 0);
-    }
-
-    public RectangleMethodIntegralCalculator(double epsilon, int logsCount) {
+    public RectangleMethodIntegralCalculator(double epsilon, CalculationProgress progress) {
         this.epsilon = epsilon;
-        this.logsCount = logsCount;
+        this.progress = progress;
     }
 
     public double calculate(Function<Double, Double> function, double lowerBound, double upperBound)
@@ -37,20 +33,37 @@ public class RectangleMethodIntegralCalculator {
         double integrationDelta = getIntegrationDelta(lowerBound, upperBound, integrationSegmentsNumber);
         double square = 0;
         double left = lowerBound;
+        long progressUpdatingFrequency = calculateProgressUpdatingFrquency(integrationSegmentsNumber);
         long iteration = 0;
-        ProgressLogger logger = new ProgressLogger(integrationSegmentsNumber, logsCount);
+        long nextProgressPartition = 0;
         while (iteration < integrationSegmentsNumber) {
-            logger.logProgress(++iteration);
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
             square += integrationDelta * function.apply(left);
             left += integrationDelta;
+            iteration++;
+            if (progressUpdatingFrequency != 0 && nextProgressPartition == progressUpdatingFrequency) {
+                progress.addIterations(nextProgressPartition);
+                nextProgressPartition = 0;
+            }
+            nextProgressPartition++;
         }
+        progress.addIterations(nextProgressPartition);
         return square;
     }
 
-    private long getIntegrationSegmentNumber(double lowerBound, double upperBound) {
+    private long calculateProgressUpdatingFrquency(long integrationSegmentsNumber) {
+        long progressUpdatingFrequency;
+        if (progress.getHitsCount() != 0) {
+            progressUpdatingFrequency = integrationSegmentsNumber / progress.getHitsCount();
+        } else {
+            progressUpdatingFrequency = 0;
+        }
+        return progressUpdatingFrequency;
+    }
+
+    public long getIntegrationSegmentNumber(double lowerBound, double upperBound) {
         return (long) ((upperBound - lowerBound) / epsilon);
     }
 
