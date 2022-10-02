@@ -44,7 +44,6 @@ public class RectangleMethodIntegralCalculator {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
-            System.out.println(integrationDelta * function.apply(left));
             square += integrationDelta * function.apply(left);
             left += integrationDelta;
         }

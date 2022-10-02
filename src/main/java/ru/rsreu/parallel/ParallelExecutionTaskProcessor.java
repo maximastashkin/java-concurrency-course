@@ -41,9 +41,7 @@ public class ParallelExecutionTaskProcessor {
         double result = 0;
         for (Future<Double> future : futures) {
             try {
-                double cr = future.get();
-                System.out.println(cr);
-                result += cr;
+                result += future.get();
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
