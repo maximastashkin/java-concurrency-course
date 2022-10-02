@@ -20,14 +20,10 @@ public class Runner {
                     case EXIT:
                         return;
                     case START: {
-                        Optional<Double> epsilon = tryToConvertParam(inputEntity.getParam(), Double::parseDouble);
-                        if (epsilon.isPresent()) {
-                            threadsHolder.startNewTaskThread(currentTaskId, epsilon.get());
-                            System.out.printf("Thread with task id = %d started%n", currentTaskId);
-                            currentTaskId++;
-                        } else {
-                            System.out.println("Illegal epsilon parameter!");
-                        }
+                        double epsilon = resolveEpsilonParameter(inputEntity.getParam());
+                        threadsHolder.startNewTaskThread(currentTaskId, epsilon);
+                        System.out.printf("Thread with task id = %d started%n", currentTaskId);
+                        currentTaskId++;
                         break;
                     }
                     case AWAIT: {
@@ -51,6 +47,15 @@ public class Runner {
             } catch (RuntimeException exception) {
                 System.out.println(exception.getMessage());
             }
+        }
+    }
+
+    private static double resolveEpsilonParameter(String param) {
+        Optional<Double> epsilon = tryToConvertParam(param, Double::parseDouble);
+        if (epsilon.isPresent()) {
+            return epsilon.get();
+        } else {
+            throw new RuntimeException("Illegal epsilon parameter!");
         }
     }
 
