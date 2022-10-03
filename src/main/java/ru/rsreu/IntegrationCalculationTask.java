@@ -2,15 +2,14 @@ package ru.rsreu;
 
 import ru.rsreu.calculation.RectangleMethodIntegralCalculator;
 
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-public class IntegrationCalculationTask implements Runnable {
+public class IntegrationCalculationTask implements Callable<Double> {
     private final RectangleMethodIntegralCalculator calculator;
     private final Function<Double, Double> function;
     private final double lowerBound;
     private final double upperBound;
-    private double calculationResult;
-
 
     public IntegrationCalculationTask(
             RectangleMethodIntegralCalculator calculator,
@@ -24,16 +23,19 @@ public class IntegrationCalculationTask implements Runnable {
     }
 
     @Override
-    public void run() {
-        try {
-            calculationResult = calculator.calculate(function, lowerBound, upperBound);
-        } catch (InterruptedException exception) {
-            System.out.printf("Thread [%s] was interrupted%n", Thread.currentThread().getName());
-        }
-
+    public Double call() throws Exception {
+        return calculator.calculate(function, lowerBound, upperBound);
     }
 
-    public double getCalculationResult() {
-        return calculationResult;
+    @Override
+    public String toString() {
+        return "IntegrationCalculationTask{" +
+                "lowerBound=" + lowerBound +
+                ", upperBound=" + upperBound +
+                '}';
+    }
+
+    public long getTotalIterationsNumber() {
+        return calculator.getIntegrationSegmentNumber(lowerBound, upperBound);
     }
 }
