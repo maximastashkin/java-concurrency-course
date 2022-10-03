@@ -33,7 +33,7 @@ public class RectangleMethodIntegralCalculator {
         double integrationDelta = getIntegrationDelta(lowerBound, upperBound, integrationSegmentsNumber);
         double square = 0;
         double left = lowerBound;
-        long progressUpdatingFrequency = calculateProgressUpdatingFrquency(integrationSegmentsNumber);
+        long progressUpdatingFrequency = calculateProgressUpdatingFrequency(integrationSegmentsNumber);
         long iteration = 0;
         long nextProgressPartition = 0;
         while (iteration < integrationSegmentsNumber) {
@@ -53,7 +53,7 @@ public class RectangleMethodIntegralCalculator {
         return square;
     }
 
-    private long calculateProgressUpdatingFrquency(long integrationSegmentsNumber) {
+    private long calculateProgressUpdatingFrequency(long integrationSegmentsNumber) {
         long progressUpdatingFrequency;
         if (progress.getHitsCount() != 0) {
             progressUpdatingFrequency = integrationSegmentsNumber / progress.getHitsCount();
