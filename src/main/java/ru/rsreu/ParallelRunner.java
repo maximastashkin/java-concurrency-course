@@ -1,10 +1,11 @@
 package ru.rsreu;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class ParallelRunner {
     private static final ParallelExecutionTaskProcessor TASK_PROCESSOR =
-            new ParallelExecutionTaskProcessor(16, 100);
+            new ParallelExecutionTaskProcessor(8, 10);
 
     public static void main(String[] args) {
         long before = System.currentTimeMillis();
@@ -17,6 +18,8 @@ public class ParallelRunner {
             System.out.println("Calculation was interrupted");
         } catch (ExecutionException exception) {
             System.out.println(exception.getCause().toString());
+        } catch (TimeoutException exception) {
+            System.out.println("Timeout exception");
         }
     }
 }

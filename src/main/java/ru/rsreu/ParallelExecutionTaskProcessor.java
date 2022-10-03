@@ -21,7 +21,7 @@ public class ParallelExecutionTaskProcessor {
     }
 
     private static double calculateResult(List<Future<Double>> tasksFutures)
-            throws InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException, TimeoutException {
         double result = 0;
         for (Future<Double> future : tasksFutures) {
             try {
@@ -32,8 +32,6 @@ public class ParallelExecutionTaskProcessor {
                 } else {
                     throw exception;
                 }
-            } catch (TimeoutException exception) {
-                throw new ExecutionException(new TimeoutException());
             }
         }
         return result;
@@ -44,7 +42,7 @@ public class ParallelExecutionTaskProcessor {
             double lowerBound,
             double upperBound,
             double epsilon
-    ) throws InterruptedException, ExecutionException {
+    ) throws InterruptedException, ExecutionException, TimeoutException {
         double segmentsDelta = (upperBound - lowerBound) / threadsCount;
         List<IntegrationCalculationTask> tasks =
                 formParallelSegmentsTasks(function, epsilon, segmentsDelta, lowerBound, segmentsDelta);

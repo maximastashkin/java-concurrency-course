@@ -8,6 +8,10 @@ public class RectangleMethodIntegralCalculator {
     private final CalculationProgress progress;
     private final double epsilon;
 
+    public RectangleMethodIntegralCalculator(double epsilon) {
+        this(epsilon, new CalculationProgress(0));
+    }
+
     public RectangleMethodIntegralCalculator(double epsilon, CalculationProgress progress) {
         this.epsilon = epsilon;
         this.progress = progress;
