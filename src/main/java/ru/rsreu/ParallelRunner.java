@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ParallelRunner {
     private static final ParallelExecutionTaskProcessor TASK_PROCESSOR =
-            new ParallelExecutionTaskProcessor(10, 10);
+            new ParallelExecutionTaskProcessor(16, 100);
 
     public static void main(String[] args) {
         long before = System.currentTimeMillis();

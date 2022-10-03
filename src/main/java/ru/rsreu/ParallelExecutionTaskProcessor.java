@@ -20,7 +20,8 @@ public class ParallelExecutionTaskProcessor {
         calculationProgress = new CalculationProgress(logsCount);
     }
 
-    private static double calculateResult(List<Future<Double>> tasksFutures) throws InterruptedException, ExecutionException {
+    private static double calculateResult(List<Future<Double>> tasksFutures)
+            throws InterruptedException, ExecutionException {
         double result = 0;
         for (Future<Double> future : tasksFutures) {
             try {
@@ -57,6 +58,9 @@ public class ParallelExecutionTaskProcessor {
         List<Future<Double>> tasksFutures = sendTasksToExecution(tasks);
 
         executorService.shutdown();
+        if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
+            executorService.shutdownNow();
+        }
         return calculateResult(tasksFutures);
     }
 
