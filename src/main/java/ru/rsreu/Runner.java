@@ -29,7 +29,7 @@ public class Runner {
                     case AWAIT: {
                         int taskId = resolveTaskIdParameter(inputEntity.getParam());
                         try {
-                            threadsHolder.getExecutableThreadOrThrow(taskId).join();
+                            threadsHolder.getExecutableThreadOrThrow(taskId).join(5 * 60 * 1000);
                         } catch (InterruptedException e) {
                             return;
                         }
