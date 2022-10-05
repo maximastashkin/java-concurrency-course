@@ -24,15 +24,7 @@ public class ParallelExecutionTaskProcessor {
             throws InterruptedException, ExecutionException, TimeoutException {
         double result = 0;
         for (Future<Double> future : tasksFutures) {
-            try {
-                result += future.get(10, TimeUnit.MINUTES);
-            } catch (ExecutionException exception) {
-                if (exception.getCause() instanceof InterruptedException) {
-                    throw (InterruptedException) exception.getCause();
-                } else {
-                    throw exception;
-                }
-            }
+            result += future.get(10, TimeUnit.MINUTES);
         }
         return result;
     }
