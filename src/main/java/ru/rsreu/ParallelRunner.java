@@ -5,7 +5,7 @@ import java.util.concurrent.TimeoutException;
 
 public class ParallelRunner {
     private static final ParallelExecutionTaskProcessor TASK_PROCESSOR =
-            new ParallelExecutionTaskProcessor(8, 10);
+            new ParallelExecutionTaskProcessor(8, new CalculationResultHolder(), 10);
 
     public static void main(String[] args) {
         long before = System.currentTimeMillis();
