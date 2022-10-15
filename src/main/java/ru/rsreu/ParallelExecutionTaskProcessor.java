@@ -47,7 +47,9 @@ public class ParallelExecutionTaskProcessor {
         if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
             executorService.shutdownNow();
         }
-        while (!executorService.isTerminated()) ;
+        for (Future<?> future : tasksFutures) {
+            future.get();
+        }
         return calculationResultHolder.getResult();
     }
 

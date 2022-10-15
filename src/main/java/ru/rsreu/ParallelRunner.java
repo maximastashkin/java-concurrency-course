@@ -11,7 +11,7 @@ public class ParallelRunner {
         long before = System.currentTimeMillis();
         try {
             double result = TASK_PROCESSOR.executeIntegrationTaskParallel(
-                    a -> a * Math.sin(a), 0, 10, 1E-8);
+                    a -> a * Math.sin(a), 0, 10, 1E-6);
             System.out.printf("Time: %d ms%n", System.currentTimeMillis() - before);
             System.out.println("Square: " + result);
         } catch (InterruptedException exception) {
