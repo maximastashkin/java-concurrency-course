@@ -6,17 +6,13 @@ import ru.rsreu.logger.CalculationProgress;
 import java.util.function.Function;
 
 public class RectangleMethodIntegralCalculator {
-    private final CalculationResultHolder resultHolder;
+    private final CalculationResultHolder globalResultHolder;
     private final CalculationProgress progress;
     private final double epsilon;
 
-    public RectangleMethodIntegralCalculator(CalculationResultHolder resultHolder, double epsilon) {
-        this(resultHolder, new CalculationProgress(0), epsilon);
-    }
-
     public RectangleMethodIntegralCalculator(
-            CalculationResultHolder resultHolder, CalculationProgress progress, double epsilon) {
-        this.resultHolder = resultHolder;
+            CalculationResultHolder globalResultHolder, CalculationProgress progress, double epsilon) {
+        this.globalResultHolder = globalResultHolder;
         this.epsilon = epsilon;
         this.progress = progress;
     }
@@ -44,13 +40,14 @@ public class RectangleMethodIntegralCalculator {
         long progressUpdatingFrequency = calculateProgressUpdatingFrequency(integrationSegmentsNumber);
         long iteration = 0;
         long nextProgressPartition = 0;
+
         while (iteration < integrationSegmentsNumber) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
             double currentSquare = integrationDelta * function.apply(left);
             square += currentSquare;
-            resultHolder.add(currentSquare);
+            globalResultHolder.add(currentSquare);
             left += integrationDelta;
             iteration++;
             if (progressUpdatingFrequency != 0 && nextProgressPartition == progressUpdatingFrequency) {

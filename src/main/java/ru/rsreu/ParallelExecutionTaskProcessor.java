@@ -26,31 +26,40 @@ public class ParallelExecutionTaskProcessor {
         calculationProgress = new CalculationProgress(logsCount);
     }
 
+    private static void awaitAllTasks(List<Future<Double>> tasksFutures) throws InterruptedException, ExecutionException {
+        for (Future<?> future : tasksFutures) {
+            future.get();
+        }
+    }
+
     public double executeIntegrationTaskParallel(
             Function<Double, Double> function,
             double lowerBound,
             double upperBound,
             double epsilon
     ) throws InterruptedException, ExecutionException, TimeoutException {
-        double segmentsDelta = (upperBound - lowerBound) / threadsCount;
         List<IntegrationCalculationTask> tasks =
-                formParallelSegmentsTasks(function, epsilon, segmentsDelta, lowerBound, segmentsDelta);
+                formParallelSegmentsTasks(function, epsilon, lowerBound, upperBound);
         if (tasks.size() == 0) {
             return 0;
         }
-        long totalIterationsNumber = tasks.get(0).getTotalIterationsNumber() * tasks.size();
-        calculationProgress.addObserver(
-                new ExecutionTaskProgressLogger(totalIterationsNumber, calculationProgress.getHitsCount()));
+
+        subscribeLogObservers(tasks);
         List<Future<Double>> tasksFutures = sendTasksToExecution(tasks);
 
         executorService.shutdown();
         if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
             executorService.shutdownNow();
         }
-        for (Future<?> future : tasksFutures) {
-            future.get();
-        }
+
+        awaitAllTasks(tasksFutures);
         return calculationResultHolder.getResult();
+    }
+
+    private void subscribeLogObservers(List<IntegrationCalculationTask> tasks) {
+        long totalIterationsNumber = tasks.get(0).getTotalIterationsNumber() * tasks.size();
+        calculationProgress.addObserver(
+                new ExecutionTaskProgressLogger(totalIterationsNumber, calculationProgress.getHitsCount()));
     }
 
     private List<Future<Double>> sendTasksToExecution(List<IntegrationCalculationTask> tasks) {
@@ -64,18 +73,19 @@ public class ParallelExecutionTaskProcessor {
 
     private List<IntegrationCalculationTask> formParallelSegmentsTasks(
             Function<Double, Double> function,
-            double epsilon, double segmentsDelta,
+            double epsilon,
             double lowerBound,
-            double segmentDelta
+            double upperBound
     ) {
+        double segmentsDelta = (upperBound - lowerBound) / threadsCount;
         List<IntegrationCalculationTask> tasks = new ArrayList<>();
-        double upperBound = lowerBound + segmentDelta;
+        double currentUpper = lowerBound + segmentsDelta;
         for (int i = 0; i < threadsCount; i++) {
             RectangleMethodIntegralCalculator calculator =
                     new RectangleMethodIntegralCalculator(calculationResultHolder, calculationProgress, epsilon);
-            tasks.add(new IntegrationCalculationTask(calculator, function, lowerBound, upperBound));
-            lowerBound = upperBound;
-            upperBound += segmentsDelta;
+            tasks.add(new IntegrationCalculationTask(calculator, function, lowerBound, currentUpper));
+            lowerBound = currentUpper;
+            currentUpper += segmentsDelta;
         }
         return tasks;
     }
