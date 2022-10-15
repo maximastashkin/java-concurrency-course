@@ -13,11 +13,15 @@ public class ParallelExecutionTaskProcessor {
     private final ExecutorService executorService;
     private final int threadsCount;
     private final CalculationProgress calculationProgress;
+    private final Semaphore semaphore;
+    private final CountDownLatch latch;
 
     public ParallelExecutionTaskProcessor(int threadsCount, int logsCount) {
         this.threadsCount = threadsCount;
         executorService = Executors.newFixedThreadPool(threadsCount);
         calculationProgress = new CalculationProgress(logsCount);
+        semaphore = new Semaphore(threadsCount / 2, true);
+        latch = new CountDownLatch(threadsCount);
     }
 
     private static double calculateResult(List<Future<Double>> tasksFutures)
@@ -72,8 +76,9 @@ public class ParallelExecutionTaskProcessor {
         List<IntegrationCalculationTask> tasks = new ArrayList<>();
         double upperBound = lowerBound + segmentDelta;
         for (int i = 0; i < threadsCount; i++) {
-            RectangleMethodIntegralCalculator calculator = new RectangleMethodIntegralCalculator(epsilon, calculationProgress);
-            tasks.add(new IntegrationCalculationTask(calculator, function, lowerBound, upperBound));
+            RectangleMethodIntegralCalculator calculator =
+                    new RectangleMethodIntegralCalculator(epsilon, calculationProgress);
+            tasks.add(new IntegrationCalculationTask(calculator, function, lowerBound, upperBound, semaphore, latch));
             lowerBound = upperBound;
             upperBound += segmentsDelta;
         }
