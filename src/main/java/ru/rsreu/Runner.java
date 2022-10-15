@@ -1,14 +1,15 @@
 package ru.rsreu;
 
 import ru.rsreu.counter_holder.CounterHolder;
+import ru.rsreu.counter_holder.LazyInitCounterHolder;
 import ru.rsreu.counter_holder.SimpleCounterHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Runner {
-    public static void main(String[] args) {
-        CounterHolder counterHolder = new SimpleCounterHolder(0);
+    public static void main(String[] args) {                                    // handmade DI :)
+        CounterHolder counterHolder = new SimpleCounterHolder(0); // */ new LazyInitCounterHolder(0);
         List<Thread> countingThreads = new ArrayList<>();
         for (String arg : args) {
             FileSymbolCounter fileSymbolCounter = new FileSymbolCounter(arg, 'a', counterHolder);
