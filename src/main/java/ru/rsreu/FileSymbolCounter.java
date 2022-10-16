@@ -20,9 +20,6 @@ public class FileSymbolCounter {
 
     public void count(int limit, Consumer<Integer> limitCallback) throws InterruptedException {
         try (FileReader fileReader = new FileReader(fileName)) {
-            if (Thread.interrupted()) {
-                throw new InterruptedException();
-            }
             performCounting(limit, limitCallback, fileReader);
         } catch (FileNotFoundException e) {
             System.out.printf("File with name '%s' doesn't exist%n", fileName);
@@ -31,9 +28,13 @@ public class FileSymbolCounter {
         }
     }
 
-    private void performCounting(int limit, Consumer<Integer> limitCallback, FileReader fileReader) throws IOException {
+    private void performCounting(int limit, Consumer<Integer> limitCallback, FileReader fileReader)
+            throws IOException, InterruptedException {
         int current;
         while ((current = fileReader.read()) != -1) {
+            if (Thread.interrupted()) {
+                throw new InterruptedException();
+            }
             if (current == symbol) {
                 int currentGlobal = counterHolder.incrementAndGet();
                 if (currentGlobal == limit) {
