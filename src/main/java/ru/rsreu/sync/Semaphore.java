@@ -35,12 +35,10 @@ public class Semaphore {
     }
 
     public boolean tryAcquire(int permits) {
-        if (permits + currentPermits <= this.permits) {
-            synchronized (lock) {
-                if (permits + currentPermits <= this.permits) {
-                    currentPermits += permits;
-                    return true;
-                }
+        synchronized (lock) {
+            if (permits + currentPermits <= this.permits) {
+                currentPermits += permits;
+                return true;
             }
         }
         return false;
