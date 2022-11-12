@@ -57,7 +57,7 @@ public class SimpleExchangeImpl implements Exchange {
                     } else {
                         final BigDecimal bestOrderSellingCost = bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate());
                         // Относительно order
-                        final BigDecimal dealOrderSellingCurrencyCost = orderCost.min(order.getBuyingValue().divide(bestSellingOrder.getRate(), 10, RoundingMode.FLOOR));
+                        final BigDecimal dealOrderSellingCurrencyCost = orderCost.min(bestOrderSellingCost.divide(bestSellingOrder.getRate(), 10, RoundingMode.FLOOR));
                         final BigDecimal dealOrderBuyingCurrencyCost = order.getBuyingValue().min(
                                 bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate())
                         );
