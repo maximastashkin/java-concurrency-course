@@ -10,10 +10,10 @@ public class ClientAccountOperationDto {
     private final Currency currency;
     private final BigDecimal value;
 
-    public ClientAccountOperationDto(Client client, Currency currency, BigDecimal value) {
-        this.client = client;
-        this.currency = currency;
-        this.value = value;
+    private ClientAccountOperationDto(Builder builder) {
+        this.client = builder.client;
+        this.currency = builder.currency;
+        this.value = builder.value;
     }
 
     public Client getClient() {
@@ -26,5 +26,39 @@ public class ClientAccountOperationDto {
 
     public BigDecimal getValue() {
         return value;
+    }
+
+    public static class Builder {
+        private final Client client;
+        private Currency currency;
+        private BigDecimal value;
+
+        public Builder(Client client) {
+            this.client = client;
+        }
+
+        public Builder withCurrency(Currency currency) {
+            this.currency = currency;
+            return this;
+        }
+
+        public Builder withValue(BigDecimal value) {
+            this.value = value;
+            return this;
+        }
+
+        public Builder withValue(long value) {
+            this.value = BigDecimal.valueOf(value);
+            return this;
+        }
+
+        public Builder withValue(double value) {
+            this.value = BigDecimal.valueOf(value);
+            return this;
+        }
+
+        public ClientAccountOperationDto build() {
+            return new ClientAccountOperationDto(this);
+        }
     }
 }

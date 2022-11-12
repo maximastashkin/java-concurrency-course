@@ -38,14 +38,10 @@ public class Client {
                 }
                 return oldValue.subtract(value);
             }
-
-            public boolean isSuccess() {
-                return success;
-            }
         }
         MoneyTaker taker = new MoneyTaker();
         account.compute(currency, taker);
-        return taker.isSuccess();
+        return taker.success;
     }
 
     public Map<Currency, BigDecimal> getAccount() {
