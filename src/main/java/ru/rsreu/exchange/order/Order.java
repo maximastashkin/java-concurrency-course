@@ -1,12 +1,11 @@
 package ru.rsreu.exchange.order;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import ru.rsreu.exchange.Client;
 import ru.rsreu.exchange.currency.Currency;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
-@Immutable
 public class Order {
     private final Client client;
     private final Currency sellingCurrency;
@@ -51,5 +50,18 @@ public class Order {
                 ", buyingValue=" + buyingValue +
                 ", rate=" + rate +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return client.equals(order.client) && sellingCurrency == order.sellingCurrency && buyingCurrency == order.buyingCurrency && buyingValue.equals(order.buyingValue) && rate.equals(order.rate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(client, sellingCurrency, buyingCurrency, buyingValue, rate);
     }
 }

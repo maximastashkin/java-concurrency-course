@@ -1,8 +1,5 @@
 package ru.rsreu.exchange.currency;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
-
-@Immutable
 public class CurrencyPair {
     private final Currency first;
     private final Currency second;

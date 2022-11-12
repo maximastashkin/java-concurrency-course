@@ -32,7 +32,7 @@ public class Client {
 
             @Override
             public BigDecimal apply(Currency currency, BigDecimal oldValue) {
-                if (value.compareTo(oldValue) <= 0) {
+                if (value.compareTo(oldValue) > 0) {
                     success = false;
                     return oldValue;
                 }

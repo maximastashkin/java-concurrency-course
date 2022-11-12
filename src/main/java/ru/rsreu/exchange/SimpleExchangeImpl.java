@@ -24,6 +24,18 @@ public class SimpleExchangeImpl implements Exchange {
         }
     }
 
+    private static Order findBestSellingOrder(Order order, List<Order> pairOrders, BigDecimal inverseOrderRate) {
+        Order bestSellingOrder = null;
+        for (Order pairOrder : pairOrders) {
+            if (pairOrder.getSellingCurrency() == order.getBuyingCurrency() && pairOrder.getRate().compareTo(inverseOrderRate) >= 0) {
+                if (bestSellingOrder == null || bestSellingOrder.getRate().compareTo(pairOrder.getRate()) > 0) {
+                    bestSellingOrder = pairOrder;
+                }
+            }
+        }
+        return bestSellingOrder;
+    }
+
     @Override
     public Client registerNewClient() {
         return new Client();
@@ -31,25 +43,29 @@ public class SimpleExchangeImpl implements Exchange {
 
     @Override
     public OrderRegistrationStatus registerNewOrder(Order order) throws NotEnoughMoneyException {
-        if (order.getClient().takeMoney(order.getSellingCurrency(), order.getBuyingValue().multiply(order.getRate()))) {
+        BigDecimal orderCost = order.getBuyingValue().multiply(order.getRate());
+        if (!order.getClient().takeMoney(order.getSellingCurrency(), orderCost)) {
             throw new NotEnoughMoneyException("Not enough money for open this order");
         }
         orders.computeIfPresent(
                 CurrencyUtils.getCurrencyPairByTwoCurrencies(order.getSellingCurrency(), order.getBuyingCurrency()),
                 (key, pairOrders) -> {
                     final BigDecimal inverseOrderRate = BigDecimal.ONE.divide(order.getRate(), 10, RoundingMode.HALF_UP);
-                    Order bestSellingOrder = null;
-                    for (Order pairOrder : pairOrders) {
-                        if (pairOrder.getSellingCurrency() == order.getBuyingCurrency() && pairOrder.getRate().compareTo(inverseOrderRate) >= 0) {
-                            if (bestSellingOrder == null || bestSellingOrder.getRate().compareTo(pairOrder.getRate()) > 0) {
-                                bestSellingOrder = pairOrder;
-                            }
-                        }
-                    }
+                    final Order bestSellingOrder = findBestSellingOrder(order, pairOrders, inverseOrderRate);
                     if (bestSellingOrder == null) {
                         pairOrders.add(order);
                     } else {
-
+                        final BigDecimal bestOrderSellingCost = bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate());
+                        // Относительно order
+                        final BigDecimal dealOrderSellingCurrencyCost = orderCost.min(bestSellingOrder.getBuyingValue());
+                        final BigDecimal dealOrderBuyingCurrencyCost = order.getBuyingValue().min(
+                                bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate())
+                        );
+                        order.getClient().putMoney(order.getSellingCurrency(), orderCost.subtract(dealOrderSellingCurrencyCost));
+                        order.getClient().putMoney(order.getBuyingCurrency(), dealOrderBuyingCurrencyCost);
+                        bestSellingOrder.getClient().putMoney(bestSellingOrder.getSellingCurrency(), bestOrderSellingCost.subtract(dealOrderBuyingCurrencyCost));
+                        bestSellingOrder.getClient().putMoney(bestSellingOrder.getBuyingCurrency(), dealOrderSellingCurrencyCost);
+                        pairOrders.remove(bestSellingOrder);
                     }
                     return pairOrders;
                 });
@@ -63,7 +79,7 @@ public class SimpleExchangeImpl implements Exchange {
 
     @Override
     public void takeMoney(ClientAccountOperationDto clientAccountOperationDto) throws NotEnoughMoneyException {
-        if (clientAccountOperationDto.getClient().takeMoney(clientAccountOperationDto.getCurrency(), clientAccountOperationDto.getValue())) {
+        if (!clientAccountOperationDto.getClient().takeMoney(clientAccountOperationDto.getCurrency(), clientAccountOperationDto.getValue())) {
             throw new NotEnoughMoneyException("Not enough money for taking");
         }
     }
