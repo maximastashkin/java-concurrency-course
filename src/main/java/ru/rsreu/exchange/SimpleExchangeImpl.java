@@ -50,14 +50,14 @@ public class SimpleExchangeImpl implements Exchange {
         orders.computeIfPresent(
                 CurrencyUtils.getCurrencyPairByTwoCurrencies(order.getSellingCurrency(), order.getBuyingCurrency()),
                 (key, pairOrders) -> {
-                    final BigDecimal inverseOrderRate = BigDecimal.ONE.divide(order.getRate(), 10, RoundingMode.HALF_UP);
+                    final BigDecimal inverseOrderRate = BigDecimal.ONE.divide(order.getRate(), 10, RoundingMode.FLOOR);
                     final Order bestSellingOrder = findBestSellingOrder(order, pairOrders, inverseOrderRate);
                     if (bestSellingOrder == null) {
                         pairOrders.add(order);
                     } else {
                         final BigDecimal bestOrderSellingCost = bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate());
                         // Относительно order
-                        final BigDecimal dealOrderSellingCurrencyCost = orderCost.min(bestSellingOrder.getBuyingValue());
+                        final BigDecimal dealOrderSellingCurrencyCost = orderCost.min(order.getBuyingValue().divide(bestSellingOrder.getRate(), 10, RoundingMode.FLOOR));
                         final BigDecimal dealOrderBuyingCurrencyCost = order.getBuyingValue().min(
                                 bestSellingOrder.getBuyingValue().multiply(bestSellingOrder.getRate())
                         );
