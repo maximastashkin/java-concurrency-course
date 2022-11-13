@@ -1,5 +1,5 @@
 package ru.rsreu.exchange.currency;
 
 public enum Currency {
-    RUR, USD
+    RUR, USD, EUR, CNY
 }

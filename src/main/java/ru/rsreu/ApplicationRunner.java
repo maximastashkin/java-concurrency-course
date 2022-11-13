@@ -20,8 +20,8 @@ public class ApplicationRunner {
         exchange.putMoney(new ClientAccountOperationDto.Builder(secondClient).withCurrency(Currency.USD).withValue(1000).build());
         System.out.println(firstClient.getAccount());
         System.out.println(secondClient.getAccount());
-        exchange.registerNewOrder(new Order(secondClient, Currency.USD, Currency.RUR, BigDecimal.valueOf(120), BigDecimal.valueOf(1.0/50)));
-        exchange.registerNewOrder(new Order(firstClient, Currency.RUR, Currency.USD, BigDecimal.valueOf(3), BigDecimal.valueOf(50)));
+        exchange.registerNewOrder(new Order(secondClient, Currency.USD, Currency.RUR, BigDecimal.valueOf(120), BigDecimal.valueOf(1.0/51.2)));
+        exchange.registerNewOrder(new Order(firstClient, Currency.RUR, Currency.USD, BigDecimal.valueOf(3), BigDecimal.valueOf(51.3)));
         System.out.println("-----------------------------------------");
         System.out.println(firstClient.getAccount());
         System.out.println(secondClient.getAccount());

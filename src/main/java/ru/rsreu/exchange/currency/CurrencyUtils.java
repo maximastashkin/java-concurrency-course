@@ -1,6 +1,6 @@
 package ru.rsreu.exchange.currency;
 
-import ru.rsreu.exchange.exception.SuchPairNotExists;
+import ru.rsreu.exchange.exception.InvalidCurrencyPairException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,11 +14,11 @@ public final class CurrencyUtils {
 
     public static CurrencyPair getCurrencyPairByTwoCurrencies(Currency first, Currency second) {
         for (CurrencyPair pair : getCurrenciesCartesianProduct()) {
-            if (pair.hasCurrency(first) && pair.hasCurrency(second)) {
+            if (pair.hasCurrency(first) && pair.hasCurrency(second) && first != second) {
                 return pair;
             }
         }
-        throw new SuchPairNotExists(first, second);
+        throw new InvalidCurrencyPairException(first, second);
     }
 
     public static int getCurrenciesCount() {

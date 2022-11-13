@@ -1,6 +1,7 @@
 package ru.rsreu.exchange;
 
 import ru.rsreu.exchange.currency.Currency;
+import ru.rsreu.exchange.util.BigDecimalUtils;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -15,28 +16,44 @@ import static ru.rsreu.exchange.currency.CurrencyUtils.getCurrenciesCount;
 public class Client {
     private final UUID id;
 
-    private final Map<Currency, BigDecimal> account = new ConcurrentHashMap<>(
-            getCurrenciesCount(), 1, getCurrenciesCount());
+    private final Map<Currency, BigDecimal> account;
+
+    {
+        account = new ConcurrentHashMap<>(
+                getCurrenciesCount(), 1, getCurrenciesCount());
+        for (Currency currency : Currency.values()) {
+            account.put(currency, BigDecimal.ZERO);
+        }
+    }
 
     Client() {
         this.id = UUID.randomUUID();
     }
 
     void putMoney(Currency currency, BigDecimal value) {
-        account.compute(currency, (key, oldValue) -> oldValue == null ? value : oldValue.add(value));
+        account.compute(currency, (key, oldValue) -> oldValue == null ? value :
+                oldValue
+                        .setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                        .add(value.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)));
     }
 
     boolean takeMoney(Currency currency, BigDecimal value) {
+        if (BigDecimal.ZERO.compareTo(value) > 0) {
+            throw new IllegalArgumentException("Value must be more than zero!");
+        }
         class MoneyTaker implements BiFunction<Currency, BigDecimal, BigDecimal> {
             private boolean success = true;
 
             @Override
             public BigDecimal apply(Currency currency, BigDecimal oldValue) {
-                if (value.compareTo(oldValue) > 0) {
+                if (value.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                        .compareTo(oldValue.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)) > 0) {
                     success = false;
                     return oldValue;
                 }
-                return oldValue.subtract(value);
+                return oldValue
+                        .setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                        .subtract(value.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE));
             }
         }
         MoneyTaker taker = new MoneyTaker();

@@ -3,10 +3,13 @@ package ru.rsreu.exchange;
 import ru.rsreu.exchange.currency.CurrencyPair;
 import ru.rsreu.exchange.currency.CurrencyUtils;
 import ru.rsreu.exchange.dto.ClientAccountOperationDto;
+import ru.rsreu.exchange.exception.InvalidOrderValuesException;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;
 import ru.rsreu.exchange.order.Order;
+import ru.rsreu.exchange.util.BigDecimalUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -34,12 +37,26 @@ public class SimpleExchangeImpl implements Exchange {
         Order bestSellingOrder = null;
         for (Order pairOrder : pairOrders) {
             if (pairOrder.getSellingCurrency() == order.getBuyingCurrency() && pairOrder.getRate().compareTo(inverseOrderRate) >= 0) {
-                if (bestSellingOrder == null || bestSellingOrder.getRate().compareTo(pairOrder.getRate()) > 0) {
+                if (bestSellingOrder == null ||
+                        bestSellingOrder.getRate().setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                                .compareTo(
+                                        pairOrder.getRate().setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)) > 0) {
                     bestSellingOrder = pairOrder;
                 }
             }
         }
         return Optional.ofNullable(bestSellingOrder);
+    }
+
+    private static void validateOrder(Order order) {
+        if (order.getRate()
+                .setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                .compareTo(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)) <= 0 ||
+                order.getBuyingValue()
+                        .setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
+                        .compareTo(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)) <= 0) {
+            throw new InvalidOrderValuesException("Order rate and buying value must be greater than zero");
+        }
     }
 
     @Override
@@ -49,6 +66,7 @@ public class SimpleExchangeImpl implements Exchange {
 
     @Override
     public OrderRegistrationStatus registerNewOrder(Order order) throws NotEnoughMoneyException {
+        validateOrder(order);
         BigDecimal orderExpectedCostInSellingValue = order.getBuyingValue().multiply(order.getRate());
         if (!order.getClient().takeMoney(order.getSellingCurrency(), orderExpectedCostInSellingValue)) {
             throw new NotEnoughMoneyException("Not enough money for open this order");
@@ -96,9 +114,9 @@ public class SimpleExchangeImpl implements Exchange {
         private static void processClientOrderMoneyTransfers(ClientAccountOperationDto sellingCurrencyRefundOperation,
                                                              ClientAccountOperationDto buyingCurrencyTransactionOperation) {
             sellingCurrencyRefundOperation.getClient().putMoney(sellingCurrencyRefundOperation.getCurrency(),
-                    sellingCurrencyRefundOperation.getValue());
+                    sellingCurrencyRefundOperation.getValue().setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE));
             buyingCurrencyTransactionOperation.getClient().putMoney(buyingCurrencyTransactionOperation.getCurrency(),
-                    buyingCurrencyTransactionOperation.getValue());
+                    buyingCurrencyTransactionOperation.getValue().setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE));
         }
 
         @Override
@@ -115,7 +133,8 @@ public class SimpleExchangeImpl implements Exchange {
                 // Считаем фактическую стоимость ордера в валюте покупки
                 final BigDecimal factOrderCostInBuyingValue = order.getBuyingValue().min(bestSellingOrderExpectedCostInSellingValue);
                 // Считаем фактическую стоимость ордера в валюте продажи
-                final BigDecimal factOrderCostInSellingValue = factOrderCostInBuyingValue.multiply(getInverseNumber(bestSellingOrder.getRate()));
+                final BigDecimal factOrderCostInSellingValue = factOrderCostInBuyingValue.multiply(getInverseNumber(bestSellingOrder.getRate()))
+                        .setScale(2, RoundingMode.HALF_UP);
 
                 // Раскидываем деньги на счета в результате закрытой сделки
                 // Считаем возврат для клиента order в валюте продажи (разница ожидаемой стоимости ордера и фактической)
