@@ -15,5 +15,7 @@ public interface Exchange {
 
     void takeMoney(ClientAccountOperationDto clientAccountOperationDto) throws NotEnoughMoneyException;
 
+    void declineOrder(Order order);
+
     List<Order> getAllOpenedOrders();
 }

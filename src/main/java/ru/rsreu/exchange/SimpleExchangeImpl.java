@@ -21,6 +21,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static ru.rsreu.exchange.currency.CurrencyUtils.getCurrenciesCartesianProduct;
+import static ru.rsreu.exchange.currency.CurrencyUtils.getCurrencyPairByTwoCurrencies;
 import static ru.rsreu.exchange.util.BigDecimalUtils.getInverseNumber;
 
 public class SimpleExchangeImpl implements Exchange {
@@ -89,6 +90,12 @@ public class SimpleExchangeImpl implements Exchange {
         if (!clientAccountOperationDto.getClient().takeMoney(clientAccountOperationDto.getCurrency(), clientAccountOperationDto.getValue())) {
             throw new NotEnoughMoneyException("Not enough money for operation");
         }
+    }
+
+    @Override
+    public void declineOrder(Order order) {
+        order.getClient().putMoney(order.getSellingCurrency(), order.getBuyingValue().multiply(order.getRate()));
+        orders.get(getCurrencyPairByTwoCurrencies(order.getBuyingCurrency(), order.getSellingCurrency())).remove(order);
     }
 
     @Override
