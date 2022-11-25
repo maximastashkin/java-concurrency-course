@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;
-import ru.rsreu.exchange.generator.OrderStubGenerator;
+import ru.rsreu.exchange.generator.DummyOrderStubGenerator;
 import ru.rsreu.exchange.generator.OrderStubGeneratorConfiguration;
 import ru.rsreu.exchange.order.Order;
 import ru.rsreu.exchange.util.BigDecimalUtils;
@@ -18,10 +18,10 @@ import java.util.concurrent.CountDownLatch;
 
 class SimpleExchangeImplThreadsStressTest {
     private final Exchange exchange = new SimpleExchangeImpl();
-    private final OrderStubGenerator orderStubGenerator;
+    private final DummyOrderStubGenerator dummyOrderStubGenerator;
 
     SimpleExchangeImplThreadsStressTest() {
-        this.orderStubGenerator = new OrderStubGenerator(new OrderStubGeneratorConfiguration());
+        this.dummyOrderStubGenerator = new DummyOrderStubGenerator(new OrderStubGeneratorConfiguration());
     }
 
     //@RepeatedTest(10)
@@ -45,7 +45,7 @@ class SimpleExchangeImplThreadsStressTest {
                     countDownLatch.countDown();
                     countDownLatch.await();
                     for (int i = 0; i < 10; i++) {
-                        Order order = orderStubGenerator.generateRandomOrder(client);
+                        Order order = dummyOrderStubGenerator.generateRandomOrder(client);
                         exchange.registerNewOrder(order);
                     }
                 } catch (NotEnoughMoneyException e) {

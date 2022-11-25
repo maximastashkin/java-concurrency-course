@@ -7,10 +7,10 @@ import ru.rsreu.exchange.order.Order;
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class OrderStubGenerator {
+public class DummyOrderStubGenerator {
     private final OrderStubGeneratorConfiguration configuration;
 
-    public OrderStubGenerator(OrderStubGeneratorConfiguration configuration) {
+    public DummyOrderStubGenerator(OrderStubGeneratorConfiguration configuration) {
         this.configuration = configuration;
     }
 
