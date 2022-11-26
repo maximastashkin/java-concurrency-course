@@ -1,5 +1,7 @@
-package ru.rsreu.exchange.currency;
+package ru.rsreu.exchange.util;
 
+import ru.rsreu.exchange.currency.Currency;
+import ru.rsreu.exchange.currency.CurrencyPair;
 import ru.rsreu.exchange.exception.InvalidCurrencyPairException;
 
 import java.util.Collections;

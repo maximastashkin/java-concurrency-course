@@ -1,7 +1,9 @@
-package ru.rsreu.exchange;
+package ru.rsreu.exchange.base;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.rsreu.exchange.Exchange;
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;
 import ru.rsreu.exchange.generator.DummyOrderStubGenerator;
@@ -16,35 +18,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-class SimpleExchangeImplThreadsStressTest {
-    private final Exchange exchange = new SimpleExchangeImpl();
+public abstract class ExchangeThreadsStressTest {
+    private static final int TOTAL_CLIENTS_COUNT = 10;
+    private static final int ORDERS_PER_CLIENT = 30000;
+    private static final BigDecimal BASE_CLIENT_MONEY = BigDecimal.valueOf(Integer.MAX_VALUE);
+
+    private final Exchange exchange;
     private final DummyOrderStubGenerator dummyOrderStubGenerator;
 
-    SimpleExchangeImplThreadsStressTest() {
+    protected ExchangeThreadsStressTest(Exchange exchange) {
+        this.exchange = exchange;
         this.dummyOrderStubGenerator = new DummyOrderStubGenerator(new OrderStubGeneratorConfiguration());
     }
 
-    //@RepeatedTest(10)
     @Test
     public void stressTest() throws InterruptedException {
         List<Client> clients = new ArrayList<>();
-        int totalClientCount = 1000;
-        for (int i = 0; i < totalClientCount; i++) {
+        for (int i = 0; i < TOTAL_CLIENTS_COUNT; i++) {
             Client client = exchange.registerNewClient();
             for (Currency currency : Currency.values()) {
-                client.putMoney(currency, BigDecimal.valueOf(1000));
+                client.putMoney(currency, BASE_CLIENT_MONEY);
             }
             clients.add(client);
         }
 
         List<Thread> clientThreads = new ArrayList<>();
-        CountDownLatch countDownLatch = new CountDownLatch(totalClientCount);
+        CountDownLatch countDownLatch = new CountDownLatch(TOTAL_CLIENTS_COUNT);
         for (Client client : clients) {
             clientThreads.add(new Thread(() -> {
                 try {
                     countDownLatch.countDown();
                     countDownLatch.await();
-                    for (int i = 0; i < 10; i++) {
+                    for (int i = 0; i < ORDERS_PER_CLIENT; i++) {
                         Order order = dummyOrderStubGenerator.generateRandomOrder(client);
                         exchange.registerNewOrder(order);
                     }
@@ -55,26 +60,26 @@ class SimpleExchangeImplThreadsStressTest {
                 }
             }));
         }
+        long start = System.currentTimeMillis();
         for (Thread thread : clientThreads) {
             thread.start();
         }
         for (Thread thread : clientThreads) {
             thread.join();
         }
-
+        System.out.printf("%s exchange %.2f orders per second\n", exchange.getClass().getName(),
+                (TOTAL_CLIENTS_COUNT * ORDERS_PER_CLIENT) / ((System.currentTimeMillis() - start) / 1000.0));
         Map<Currency, BigDecimal> exchangeBalance = new HashMap<>();
         for (Currency currency : Currency.values()) {
-            exchangeBalance.put(currency, BigDecimal.valueOf(totalClientCount)
-                    .multiply(BigDecimal.valueOf(1000).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)));
+            exchangeBalance.put(currency, BigDecimal.valueOf(TOTAL_CLIENTS_COUNT)
+                    .multiply(BASE_CLIENT_MONEY.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)));
         }
-        System.out.println(exchange.getAllOpenedOrders().size());
         for (Order order : exchange.getAllOpenedOrders()) {
             exchange.declineOrder(order);
         }
         Map<Currency, BigDecimal> clientsFinalBalance = new HashMap<>();
         for (Client client : clients) {
             Map<Currency, BigDecimal> clientBalance = client.getAccount();
-            System.out.println(clientBalance);
             for (Currency currency : Currency.values()) {
                 clientsFinalBalance.put(currency, clientsFinalBalance.getOrDefault(currency, BigDecimal.ZERO).add(clientBalance.get(currency)));
             }

@@ -1,6 +1,6 @@
 package ru.rsreu.exchange.order;
 
-import ru.rsreu.exchange.Client;
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.currency.Currency;
 
 import java.math.BigDecimal;

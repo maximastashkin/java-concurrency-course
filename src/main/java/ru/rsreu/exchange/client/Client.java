@@ -1,4 +1,4 @@
-package ru.rsreu.exchange;
+package ru.rsreu.exchange.client;
 
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.util.BigDecimalUtils;
@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
-import static ru.rsreu.exchange.currency.CurrencyUtils.getCurrenciesCount;
+import static ru.rsreu.exchange.util.CurrencyUtils.getCurrenciesCount;
 
 public class Client {
     private final UUID id;
@@ -26,18 +26,18 @@ public class Client {
         }
     }
 
-    Client() {
+    public Client() {
         this.id = UUID.randomUUID();
     }
 
-    void putMoney(Currency currency, BigDecimal value) {
+    public void putMoney(Currency currency, BigDecimal value) {
         account.compute(currency, (key, oldValue) -> oldValue == null ? value :
                 oldValue
                         .setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)
                         .add(value.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE)));
     }
 
-    boolean takeMoney(Currency currency, BigDecimal value) {
+    public boolean takeMoney(Currency currency, BigDecimal value) {
         if (BigDecimal.ZERO.compareTo(value) > 0) {
             throw new IllegalArgumentException("Value must be more than zero!");
         }

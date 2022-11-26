@@ -4,7 +4,7 @@ public class CurrencyPair {
     private final Currency first;
     private final Currency second;
 
-    CurrencyPair(Currency first, Currency second) {
+    public CurrencyPair(Currency first, Currency second) {
         this.first = first;
         this.second = second;
     }
@@ -26,5 +26,10 @@ public class CurrencyPair {
     @Override
     public int hashCode() {
         return first.hashCode() + second.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", first, second);
     }
 }

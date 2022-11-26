@@ -1,7 +1,11 @@
-package ru.rsreu.exchange;
+package ru.rsreu.exchange.base;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.rsreu.exchange.client.Client;
+import ru.rsreu.exchange.Exchange;
+import ru.rsreu.exchange.OrderRegistrationStatus;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.exception.InvalidCurrencyPairException;
 import ru.rsreu.exchange.exception.InvalidOrderValuesException;
@@ -11,12 +15,18 @@ import ru.rsreu.exchange.util.BigDecimalUtils;
 
 import java.math.BigDecimal;
 
-class SimpleExchangeImplOrdersLogicalTest {
-    private final Exchange exchange = new SimpleExchangeImpl();
+public abstract class ExchangeOrdersLogicalTest {
+    private final Exchange exchange;
+
+
     // Валюты для тестов. Валюты задаются относительно ордера firstClient
     // Имеются в виду валюты покупки-продажи
-    Currency sellingCurrency = Currency.RUR;
-    Currency buyuingCurrency = Currency.USD;
+    private final Currency sellingCurrency = Currency.RUR;
+    private final Currency buyingCurrency = Currency.USD;
+
+    protected ExchangeOrdersLogicalTest(Exchange exchange) {
+        this.exchange = exchange;
+    }
 
     @Test
     public void invalidOrderTest() {
@@ -25,7 +35,7 @@ class SimpleExchangeImplOrdersLogicalTest {
                 exchange.registerNewOrder(new Order(client, Currency.RUR, Currency.USD, BigDecimal.ZERO, BigDecimal.ZERO)));
     }
 
-    @Test
+    //@Test
     public void invalidCurrencyPairOrderTest() {
         Client client = exchange.registerNewClient();
         client.putMoney(Currency.RUR, BigDecimal.valueOf(100));
@@ -48,11 +58,11 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(610));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(100.0 / 62));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(100.0 / 62));
         exchange.registerNewOrder(
-                new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.TEN, BigDecimal.valueOf(61)));
+                new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.TEN, BigDecimal.valueOf(61)));
         exchange.registerNewOrder(
-                new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(100), BigDecimal.valueOf(1.0 / 62)));
+                new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(100), BigDecimal.valueOf(1.0 / 62)));
         Assertions.assertEquals(2, exchange.getAllOpenedOrders().size());
     }
 
@@ -64,11 +74,11 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(610));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(10));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(10));
         exchange.registerNewOrder(
-                new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.TEN, BigDecimal.valueOf(61)));
+                new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.TEN, BigDecimal.valueOf(61)));
         OrderRegistrationStatus secondOrder = exchange.registerNewOrder(
-                new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(100), BigDecimal.valueOf(1.0 / 62)));
+                new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(100), BigDecimal.valueOf(1.0 / 62)));
         Assertions.assertEquals(OrderRegistrationStatus.REGISTERED, secondOrder);
     }
 
@@ -79,13 +89,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(610));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(10));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(10));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency,buyuingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(61)));
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(610), BigDecimal.valueOf(1.0 / 61)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(61)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(610), BigDecimal.valueOf(1.0 / 61)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -93,10 +103,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(10).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                firstClient.getAccount().get(buyuingCurrency));
+                firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(610).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }
@@ -117,13 +127,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(610));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(5));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(5));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(305), BigDecimal.valueOf(1.0 / 61)));
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(61)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(305), BigDecimal.valueOf(1.0 / 61)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(61)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -131,10 +141,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.valueOf(305).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                firstClient.getAccount().get(buyuingCurrency));
+                firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(305).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }
@@ -146,13 +156,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(610));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(5));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(5));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.valueOf(5), BigDecimal.valueOf(61)));
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(305), BigDecimal.valueOf(1.0 / 61)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(5), BigDecimal.valueOf(61)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(305), BigDecimal.valueOf(1.0 / 61)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -160,10 +170,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.valueOf(305).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                firstClient.getAccount().get(buyuingCurrency));
+                firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(305).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }
@@ -182,13 +192,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(305));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(10));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(10));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(610), BigDecimal.valueOf(1.0 / 61)));
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.valueOf(5), BigDecimal.valueOf(61)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(610), BigDecimal.valueOf(1.0 / 61)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(5), BigDecimal.valueOf(61)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -196,10 +206,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                firstClient.getAccount().get(buyuingCurrency));
+                firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.valueOf(5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(305).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }
@@ -219,13 +229,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(500));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(12.5));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(12.5));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(500), BigDecimal.valueOf(1.0 / 40)));
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(50)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(500), BigDecimal.valueOf(1.0 / 40)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(50)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -233,10 +243,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.valueOf(100).setScale(BigDecimalUtils.SCALE,
                 BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(10).setScale(BigDecimalUtils.SCALE,
-                BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(buyuingCurrency));
+                BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.valueOf(2.5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(400).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }
@@ -255,13 +265,13 @@ class SimpleExchangeImplOrdersLogicalTest {
         firstClient.putMoney(sellingCurrency, BigDecimal.valueOf(500));
 
         Client secondClient = exchange.registerNewClient();
-        secondClient.putMoney(buyuingCurrency, BigDecimal.valueOf(12.5));
+        secondClient.putMoney(buyingCurrency, BigDecimal.valueOf(12.5));
         System.out.println("\nBefore deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
         System.out.println("Second client account: " + secondClient.getAccount());
 
-        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyuingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(50)));
-        exchange.registerNewOrder(new Order(secondClient, buyuingCurrency, sellingCurrency, BigDecimal.valueOf(500), BigDecimal.valueOf(1.0 / 40)));
+        exchange.registerNewOrder(new Order(firstClient, sellingCurrency, buyingCurrency, BigDecimal.valueOf(10), BigDecimal.valueOf(50)));
+        exchange.registerNewOrder(new Order(secondClient, buyingCurrency, sellingCurrency, BigDecimal.valueOf(500), BigDecimal.valueOf(1.0 / 40)));
 
         System.out.println("\nAfter deal: ");
         System.out.println("First client account: " + firstClient.getAccount());
@@ -269,10 +279,10 @@ class SimpleExchangeImplOrdersLogicalTest {
         Assertions.assertEquals(BigDecimal.ZERO.setScale(BigDecimalUtils.SCALE,
                 BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(sellingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(10).setScale(BigDecimalUtils.SCALE,
-                BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(buyuingCurrency));
+                BigDecimalUtils.ROUNDING_MODE), firstClient.getAccount().get(buyingCurrency));
 
         Assertions.assertEquals(BigDecimal.valueOf(2.5).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
-                secondClient.getAccount().get(buyuingCurrency));
+                secondClient.getAccount().get(buyingCurrency));
         Assertions.assertEquals(BigDecimal.valueOf(500).setScale(BigDecimalUtils.SCALE, BigDecimalUtils.ROUNDING_MODE),
                 secondClient.getAccount().get(sellingCurrency));
     }

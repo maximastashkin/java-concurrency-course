@@ -1,6 +1,6 @@
 package ru.rsreu.exchange.generator;
 
-import ru.rsreu.exchange.Client;
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.order.Order;
 

@@ -1,5 +1,6 @@
 package ru.rsreu.exchange;
 
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.dto.ClientAccountOperationDto;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;
 import ru.rsreu.exchange.order.Order;

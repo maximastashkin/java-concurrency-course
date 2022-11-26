@@ -1,7 +1,10 @@
-package ru.rsreu.exchange;
+package ru.rsreu.exchange.base;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.rsreu.exchange.Exchange;
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.dto.ClientAccountOperationDto;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;
@@ -9,9 +12,12 @@ import ru.rsreu.exchange.util.BigDecimalUtils;
 
 import java.math.BigDecimal;
 
-class SimpleExchangeImplClientMoneyTest {
-    private final
-    Exchange exchange = new SimpleExchangeImpl();
+public abstract class ExchangeClientMoneyTest {
+    private final Exchange exchange;
+
+    protected ExchangeClientMoneyTest(Exchange exchange) {
+        this.exchange = exchange;
+    }
 
     @Test
     public void putMoneyClientTest() {

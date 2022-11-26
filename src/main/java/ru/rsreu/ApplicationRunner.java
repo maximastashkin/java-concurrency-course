@@ -1,8 +1,8 @@
 package ru.rsreu;
 
-import ru.rsreu.exchange.Client;
+import ru.rsreu.exchange.client.Client;
 import ru.rsreu.exchange.Exchange;
-import ru.rsreu.exchange.SimpleExchangeImpl;
+import ru.rsreu.exchange.simple.SimpleExchangeImpl;
 import ru.rsreu.exchange.currency.Currency;
 import ru.rsreu.exchange.dto.ClientAccountOperationDto;
 import ru.rsreu.exchange.exception.NotEnoughMoneyException;

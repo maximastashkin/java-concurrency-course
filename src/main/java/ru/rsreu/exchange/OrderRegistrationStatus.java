@@ -1,5 +1,5 @@
 package ru.rsreu.exchange;
 
 public enum OrderRegistrationStatus {
-    REGISTERED, COMPLETED
+    REGISTERED, COMPLETED, ERROR
 }
