@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class ExchangeThreadsStressTest {
-    private static final int TOTAL_CLIENTS_COUNT = 10;
-    private static final int ORDERS_PER_CLIENT = 30000;
+    private static final int TOTAL_CLIENTS_COUNT = 10000;
+    private static final int ORDERS_PER_CLIENT = 50;
     private static final BigDecimal BASE_CLIENT_MONEY = BigDecimal.valueOf(Integer.MAX_VALUE);
 
     private final Exchange exchange;
